@@ -4,40 +4,62 @@ namespace App\Http\Controllers;
 
 use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class AuthorController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        return Author::all();
+        $authors = Author::all();
+        return response()->json($authors);
     }
 
-    public function show($id)
-    {
-        return Author::findOrFail($id);
-    }
-
-    public function store(Request $request)
-    {
-        return Author::create($request->all());
-    }
-
-    public function update(Request $request, $id)
+    public function show($id): JsonResponse
     {
         $author = Author::findOrFail($id);
-        $author->update($request->all());
-        return $author;
+        return response()->json($author);
     }
 
-    public function destroy($id)
+    public function store(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'bio' => 'nullable|string',
+            'birth_date' => 'required|date|before:today',
+        ]);
+
+        $author = Author::create($validatedData);
+
+        return response()->json($author, 201);
+    }
+
+    public function update(Request $request, $id): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'bio' => 'nullable|string',
+            'birth_date' => 'sometimes|required|date|before:today',
+        ]);
+
+        $author = Author::findOrFail($id);
+        $author->update($validatedData);
+
+        return response()->json($author);
+    }
+
+    public function destroy($id): JsonResponse
     {
         $author = Author::findOrFail($id);
         $author->delete();
-        return response(null, 204);
+
+        return response()->json(null, 204);
     }
 
-    public function books($id)
+    public function books($id): JsonResponse
     {
-        return Author::findOrFail($id)->books;
+        $author = Author::findOrFail($id);
+        $books = $author->books;
+
+        return response()->json($books);
     }
 }
