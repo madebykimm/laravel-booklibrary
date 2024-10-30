@@ -69,26 +69,28 @@ php artisan serve
 
 # API Endpoints
 
-## Authors
-### GET /api/authors - Retrieve all authors
-### POST /api/authors - Create a new author
-### GET /api/authors/{id} - Retrieve a specific author
-### PUT /api/authors/{id} - Update an author
-### DELETE /api/authors/{id} - Delete an author
-### GET /api/authors/{id}/books - Retrieve all books by a specific author
+```bash
+Authors
+GET /api/authors - Retrieve all authors
+POST /api/authors - Create a new author
+GET /api/authors/{id} - Retrieve a specific author
+PUT /api/authors/{id} - Update an author
+DELETE /api/authors/{id} - Delete an author
+GET /api/authors/{id}/books - Retrieve all books by a specific author
 
-### Books
-### GET /api/books - Retrieve all books
-### POST /api/books - Create a new book
-### GET /api/books/{id} - Retrieve a specific book
-### PUT /api/books/{id} - Update a book
-### DELETE /api/books/{id} - Delete a book
+Books
+GET /api/books - Retrieve all books
+POST /api/books - Create a new book
+GET /api/books/{id} - Retrieve a specific book
+PUT /api/books/{id} - Update a book
+DELETE /api/books/{id} - Delete a book
+```
 
 
 # Testing
 This project includes unit tests for AuthorController and BookController to ensure core functionality and relationships work as expected.
 
-# Run Tests
+Run Tests
 To execute the tests, run:
 ```bash
 php artisan test
