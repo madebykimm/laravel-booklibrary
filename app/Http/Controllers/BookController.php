@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Repositories\BookRepositoryInterface;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 
 class BookController extends Controller
 {
+    protected $bookRepository;
+
+    public function __construct(BookRepositoryInterface $bookRepository)
+    {
+        $this->bookRepository = $bookRepository;
+    }
+
     public function index(): JsonResponse
     {
-        $books = Book::all();
+        $books = Book::with('author')->paginate(20);
         return response()->json($books);
     }
 
@@ -20,33 +29,15 @@ class BookController extends Controller
         return response()->json($book);
     }
 
-    public function store(Request $request): JsonResponse
+
+    public function store(StoreBookRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'publish_date' => 'required|date',
-            'author_id' => 'required|exists:authors,id',
-        ]);
-
-        $book = Book::create($validatedData);
-
-        return response()->json($book, 201);
+        return $this->bookRepository->create($request->validated());
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateBookRequest $request, $id)
     {
-        $validatedData = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'publish_date' => 'sometimes|required|date',
-            'author_id' => 'sometimes|required|exists:authors,id',
-        ]);
-
-        $book = Book::findOrFail($id);
-        $book->update($validatedData);
-
-        return response()->json($book);
+        return $this->bookRepository->update($id, $request->validated());
     }
 
     public function destroy($id): JsonResponse

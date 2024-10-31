@@ -2,15 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\AuthorRepositoryInterface;
+use App\Http\Requests\StoreAuthorRequest;
+use App\Http\Requests\UpdateAuthorRequest;
 use App\Models\Author;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class AuthorController extends Controller
 {
+    protected $authorRepository;
+
+    public function __construct(AuthorRepositoryInterface $authorRepository)
+    {
+        $this->authorRepository = $authorRepository;
+    }
+
     public function index(): JsonResponse
     {
-        $authors = Author::all();
+        $authors = Author::paginate(20);
         return response()->json($authors);
     }
 
@@ -20,32 +30,17 @@ class AuthorController extends Controller
         return response()->json($author);
     }
 
-    public function store(Request $request): JsonResponse
+
+    public function store(StoreAuthorRequest $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'bio' => 'nullable|string',
-            'birth_date' => 'required|date|before:today',
-        ]);
-
-        $author = Author::create($validatedData);
-
-        return response()->json($author, 201);
+        return $this->authorRepository->create($request->validated());
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateAuthorRequest $request, $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'bio' => 'nullable|string',
-            'birth_date' => 'sometimes|required|date|before:today',
-        ]);
-
-        $author = Author::findOrFail($id);
-        $author->update($validatedData);
-
-        return response()->json($author);
+        return $this->authorRepository->update($id, $request->validated());
     }
+
 
     public function destroy($id): JsonResponse
     {

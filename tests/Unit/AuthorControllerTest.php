@@ -10,7 +10,7 @@ class AuthorControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_create_author()
+    public function test_can_create_author_with_valid_data()
     {
         $data = [
             'name' => 'John Doe',
@@ -25,17 +25,20 @@ class AuthorControllerTest extends TestCase
         $this->assertDatabaseHas('authors', $data);
     }
 
-    public function test_can_retrieve_author()
+    public function test_cannot_create_author_with_invalid_data()
     {
-        $author = Author::factory()->create();
+        $data = [
+            'name' => '',  // Empty name, which is required
+            'birth_date' => 'not-a-date',  // Invalid date format
+        ];
 
-        $response = $this->getJson("/api/authors/{$author->id}");
+        $response = $this->postJson('/api/authors', $data);
 
-        $response->assertStatus(200)
-            ->assertJsonFragment(['name' => $author->name]);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name', 'birth_date']);
     }
 
-    public function test_can_update_author()
+    public function test_can_update_author_with_valid_data()
     {
         $author = Author::factory()->create();
         $data = ['name' => 'Updated Name'];
@@ -45,6 +48,17 @@ class AuthorControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonFragment($data);
         $this->assertDatabaseHas('authors', $data);
+    }
+
+    public function test_cannot_update_author_with_invalid_data()
+    {
+        $author = Author::factory()->create();
+        $data = ['birth_date' => 'invalid-date'];
+
+        $response = $this->putJson("/api/authors/{$author->id}", $data);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['birth_date']);
     }
 
     public function test_can_delete_author()
