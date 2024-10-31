@@ -67,7 +67,7 @@ php artisan serve
 ```
 
 
-# API Endpoints
+# API Endpoints (Header "Accept:application/json" required )
 
 ```bash
 Authors
